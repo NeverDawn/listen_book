@@ -38,5 +38,10 @@ class Settings(BaseSettings):
     def audio_dir(self) -> Path:
         return self.storage_root / "audio"
 
+    def ensure_storage_dirs(self) -> None:
+        self.uploads_dir.mkdir(parents=True, exist_ok=True)
+        self.parsed_dir.mkdir(parents=True, exist_ok=True)
+        self.audio_dir.mkdir(parents=True, exist_ok=True)
+
 
 settings = Settings()

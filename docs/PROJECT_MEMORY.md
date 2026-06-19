@@ -76,6 +76,8 @@ Get-Content -Path docs\PROJECT_MEMORY.md -Encoding UTF8
 - 前端删除交互：书库删除入口、页面内确认弹窗、删除当前书后清空阅读/播放/缓存状态
 - 阅读进度保存最小版：默认本地用户、按书保存/读取当前句子、重新打开书时恢复高亮句
 - 精确播放位置保存/恢复：播放中低频保存 `audio_position_ms`，暂停立即保存，恢复播放时设置 `<audio>.currentTime`
+- 后端自动化测试第一批：上传解析、GB18030 解析、阅读进度、书籍删除清理
+- 服务启动后的 API smoke 脚本：`scripts/smoke_api.py`
 - Windows 启停脚本：`scripts\start-dev.bat`、`scripts\stop-dev.bat`
 
 当前主要未完成：
@@ -112,6 +114,15 @@ Get-Content -Path docs\PROJECT_MEMORY.md -Encoding UTF8
   - 切换上一句/下一句时保存新句子的播放位置为 `0`
   - 恢复书籍进度时保留后端返回的 `audio_position_ms`
   - 再次播放恢复出来的句子时设置 `<audio>.currentTime`
+- 完成 v0.2 测试与稳定性第一批：
+  - 新增 pytest 覆盖 TXT 上传解析、GB18030 解析、阅读进度、书籍删除清理
+  - 新增 `scripts/smoke_api.py` 用于服务启动后的 API smoke 验收
+  - 修复 dev 依赖 `httpx2` -> `httpx`
+  - `Job.payload` 改为跨数据库兼容 JSON，PostgreSQL 下仍使用 JSONB
+  - 解析 worker 显式转换 job payload 中的 `book_id` 为 UUID
+  - 应用启动时自动创建 storage 子目录
+  - 时间戳默认值改为 timezone-aware UTC
+  - 重写 README 和 runbook，补充自动化验证与浏览器手工验收清单
 - 新增当天交接记录：
   - `docs/progress-2026-06-19.md`
 
@@ -124,14 +135,16 @@ Get-Content -Path docs\PROJECT_MEMORY.md -Encoding UTF8
 - 用户已验证已有书籍删除功能可用。
 - `npm run build` 在精确播放位置保存/恢复改动后再次通过。
 - 用户已实机验证精确播放位置保存/恢复可用。
+- `.venv\Scripts\python.exe -m pytest backend\tests -q` 通过。
+- `.venv\Scripts\ruff.exe check --no-cache backend\app backend\tests scripts\smoke_api.py` 通过。
+- `npm run build` 在 v0.2 稳定性改动后通过。
 
 下次优先任务：
 
-1. 初始化 Git 并提交当前本地单用户 MVP 基线，建议里程碑名 `v0.1-local-listen-mvp`。
-2. 补后端删除和进度接口的自动化测试。
-3. 增加正式 E2E 测试脚本。
-4. 开始 EPUB 解析。
-5. 登录/多用户系统。
+1. 增加正式浏览器 E2E 测试脚本。
+2. 扩展音频接口测试和失败路径测试。
+3. 开始 EPUB 解析。
+4. 登录/多用户系统。
 
 ## 最近交接记录：2026-06-18
 

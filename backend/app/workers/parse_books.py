@@ -1,4 +1,5 @@
 from pathlib import Path
+from uuid import UUID
 
 from sqlalchemy import select
 
@@ -30,7 +31,7 @@ def read_txt_text(path: Path) -> str:
 
 
 def parse_txt_book(job: Job) -> None:
-    book_id = job.payload["book_id"]
+    book_id = UUID(job.payload["book_id"])
     storage_path = Path(job.payload["storage_path"])
 
     with SessionLocal() as db:
@@ -100,7 +101,7 @@ def run_once() -> int:
                 failed_job.error_message = str(exc)
                 book_id = failed_job.payload.get("book_id")
                 if book_id:
-                    book = db.get(Book, book_id)
+                    book = db.get(Book, UUID(book_id))
                     if book is not None:
                         book.status = BookStatus.FAILED.value
                         book.error_message = str(exc)

@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from sqlalchemy import Integer, String, Text
+from sqlalchemy import JSON, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -24,6 +24,6 @@ class Job(IdMixin, TimestampMixin, Base):
 
     job_type: Mapped[str] = mapped_column(String(64), index=True)
     status: Mapped[str] = mapped_column(String(32), default=JobStatus.PENDING.value, index=True)
-    payload: Mapped[dict] = mapped_column(JSONB, default=dict)
+    payload: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"), default=dict)
     attempts: Mapped[int] = mapped_column(Integer, default=0)
     error_message: Mapped[str | None] = mapped_column(Text)

@@ -1,96 +1,114 @@
 # Listen Book
 
-家庭读书/听书 Web 应用。技术栈：
+家庭读书/听书 Web 应用。
 
-- Backend: Python FastAPI
-- Frontend: React + TypeScript
+当前 `v0.1-local-listen-mvp` 已完成本地单用户闭环：
+
+- TXT 上传、解析、断句
+- 书库和阅读页
+- Edge TTS 按句生成 MP3
+- 音频缓存和章节预生成
+- 已有书籍删除
+- 阅读进度保存
+- 精确播放位置保存/恢复
+
+## 技术栈
+
+- Backend: FastAPI + SQLAlchemy + Alembic
+- Frontend: React + TypeScript + Vite
 - Database: PostgreSQL
-- Storage: local filesystem
+- Storage: local filesystem under `storage/`
 
-当前阶段先搭工程闭环：上传、解析、断句、阅读、朗读接口、音频缓存和进度保存。
+## 快速开始
 
-## Development
-
-PostgreSQL 已检测到本机安装了 18.x。先创建 `.env`：
+创建本地环境文件：
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-后续需要创建 `listen_book` 数据库和 `listen_book_app` 用户，或把 `.env` 改成你本机已有账号。
-
-## Backend
-
-虚拟环境位于项目根目录：
-
-```powershell
-.venv\Scripts\python.exe
-```
-
-依赖安装：
+安装后端依赖：
 
 ```powershell
 .venv\Scripts\python.exe -m pip install --no-cache-dir -e backend[dev]
 ```
 
-运行 API：
-
-```powershell
-cd backend
-..\.venv\Scripts\uvicorn.exe app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-数据库迁移：
-
-```powershell
-cd backend
-..\.venv\Scripts\alembic.exe upgrade head
-```
-
-TXT 解析 worker 第一版：
-
-```powershell
-cd D:\listen_book
-.venv\Scripts\python.exe -m app.workers.parse_books
-```
-
-## Frontend
-
-依赖安装：
+安装前端依赖：
 
 ```powershell
 cd frontend
 npm install --no-audit --no-fund
 ```
 
-开发服务器：
+执行数据库迁移：
 
 ```powershell
-cd frontend
-npm run dev
+cd D:\listen_book\backend
+..\.venv\Scripts\alembic.exe upgrade head
 ```
 
-生产构建：
+启动开发服务：
 
-```powershell
-cd frontend
-npm run build
+```bat
+scripts\start-dev.bat
 ```
 
-## PostgreSQL Setup
+打开：
 
-当前默认连接串在 `.env.example`：
+```text
+http://127.0.0.1:5173/
+```
+
+停止开发服务：
+
+```bat
+scripts\stop-dev.bat
+```
+
+## PostgreSQL
+
+默认连接串见 `.env.example`：
 
 ```text
 postgresql+psycopg://listen_book_app:change-me@localhost:5432/listen_book
 ```
 
-需要在 PostgreSQL 里创建对应数据库和用户，或者把 `.env` 改成已有账号。
-
-示例 SQL：
+示例初始化 SQL：
 
 ```sql
 CREATE USER listen_book_app WITH PASSWORD 'change-me';
 CREATE DATABASE listen_book OWNER listen_book_app;
 GRANT ALL PRIVILEGES ON DATABASE listen_book TO listen_book_app;
 ```
+
+## 验证命令
+
+前端构建：
+
+```powershell
+cd D:\listen_book\frontend
+npm run build
+```
+
+后端测试：
+
+```powershell
+cd D:\listen_book
+.venv\Scripts\python.exe -m pytest backend\tests -q
+```
+
+后端 lint：
+
+```powershell
+cd D:\listen_book
+.venv\Scripts\ruff.exe check --no-cache backend\app backend\tests scripts\smoke_api.py
+```
+
+服务启动后的 API smoke：
+
+```powershell
+cd D:\listen_book
+.venv\Scripts\python.exe scripts\smoke_api.py
+```
+
+更多运行和排错步骤见 [docs/runbook.md](docs/runbook.md)。

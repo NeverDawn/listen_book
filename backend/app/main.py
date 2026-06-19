@@ -6,6 +6,7 @@ from app.core.config import settings
 
 
 def create_app() -> FastAPI:
+    settings.ensure_storage_dirs()
     app = FastAPI(title="Listen Book API", version="0.1.0")
 
     app.add_middleware(
